@@ -38,6 +38,21 @@ export default function ActivityScreen() {
     try {
       setLoading(true);
       
+      // First get user's groups
+      const { data: userGroups, error: groupsError } = await supabase
+        .from('group_members')
+        .select('group_id')
+        .eq('user_id', user?.id);
+
+      if (groupsError) throw groupsError;
+
+      const groupIds = userGroups?.map(g => g.group_id) || [];
+
+      if (groupIds.length === 0) {
+        setActivities([]);
+        return;
+      }
+
       // Fetch recent expenses from user's groups
       const { data: expenses, error: expensesError } = await supabase
         .from('expenses')
@@ -47,10 +62,9 @@ export default function ActivityScreen() {
           amount,
           created_at,
           payer:users!payer_id(name),
-          group:groups!group_id(name),
-          group_members!inner(group_id)
+          group:groups!group_id(name)
         `)
-        .eq('group_members.user_id', user?.id)
+        .in('group_id', groupIds)
         .order('created_at', { ascending: false })
         .limit(20);
 
