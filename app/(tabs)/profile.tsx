@@ -23,9 +23,11 @@ import {
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radii, font } from '@/components/ui/theme';
+import { useRouter } from 'expo-router';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
+  const router = useRouter();
 
   const handleSignOut = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -33,7 +35,10 @@ export default function ProfileScreen() {
       {
         text: 'Sign Out',
         style: 'destructive',
-        onPress: () => signOut(),
+        onPress: async () => {
+          await signOut();
+          router.replace('/'); // Redirect to login (AuthScreen)
+        },
       },
     ]);
   };
@@ -81,7 +86,7 @@ export default function ProfileScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={colors.gradientPrimary}
+        colors={colors.gradientPrimary as [string, string]}
         style={styles.headerGradient}
       >
         <SafeAreaView>
@@ -96,7 +101,7 @@ export default function ProfileScreen() {
           <View style={styles.userInfo}>
             <View style={styles.avatar}>
               <LinearGradient
-                colors={colors.gradientPrimary}
+                colors={colors.gradientPrimary as [string, string]}
                 style={styles.avatarGradient}
               >
                 <User size={32} color={colors.white} />
@@ -155,6 +160,7 @@ const styles = StyleSheet.create({
   },
   headerGradient: {
     paddingBottom: spacing.lg,
+    marginBottom: spacing.lg,
   },
   header: {
     paddingHorizontal: spacing.lg,

@@ -27,6 +27,7 @@ import {
 } from 'lucide-react-native';
 import { CreateGroupModal } from '@/components/groups/CreateGroupModal';
 import { AddExpenseModal } from '@/components/expenses/AddExpenseModal';
+import { colors } from '@/components/ui/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -287,62 +288,60 @@ export default function HomeScreen() {
             },
           ]}
         >
-          <BlurView intensity={0} style={styles.balanceCardBlur}>
-            <LinearGradient
-              colors={['rgba(255,255,255,0.95)', 'rgba(255,255,255,0.8)']}
-              style={styles.balanceCardGradient}
-            >
-              <View style={styles.balanceHeader}>
-                <LinearGradient
-                  colors={['#4ECDC4', '#44A08D']}
-                  style={styles.balanceIconContainer}
-                >
-                  <DollarSign size={20} color="#FFFFFF" />
-                </LinearGradient>
-                <Text style={styles.balanceTitle}>Your Balance</Text>
+          <LinearGradient
+            colors={colors.gradientPrimary as [string, string]}
+            style={styles.balanceCardGradient}
+          >
+            <View style={styles.balanceHeader}>
+              <LinearGradient
+                colors={['#4ECDC4', '#44A08D']}
+                style={styles.balanceIconContainer}
+              >
+                <DollarSign size={20} color="#FFFFFF" />
+              </LinearGradient>
+              <Text style={styles.balanceTitle}>Your Balance</Text>
+            </View>
+
+            <View style={styles.balanceRow}>
+              <View style={styles.balanceItem}>
+                <View style={styles.balanceItemHeader}>
+                  <ArrowDown size={16} color="#FF6B6B" />
+                  <Text style={styles.balanceLabel}>You owe</Text>
+                </View>
+                <Text style={[styles.balanceValue, styles.negativeBalance]}>
+                  {formatCurrency(balance.totalOwing)}
+                </Text>
               </View>
 
-              <View style={styles.balanceRow}>
-                <View style={styles.balanceItem}>
-                  <View style={styles.balanceItemHeader}>
-                    <ArrowDown size={16} color="#FF6B6B" />
-                    <Text style={styles.balanceLabel}>You owe</Text>
-                  </View>
-                  <Text style={[styles.balanceValue, styles.negativeBalance]}>
-                    {formatCurrency(balance.totalOwing)}
+              <View style={styles.balanceItem}>
+                <View style={styles.balanceItemHeader}>
+                  <ArrowUp size={16} color="#4ECDC4" />
+                  <Text style={styles.balanceLabel}>You're owed</Text>
+                </View>
+                <Text style={[styles.balanceValue, styles.positiveBalance]}>
+                  {formatCurrency(balance.totalOwed)}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.netBalanceContainer}>
+              <LinearGradient
+                colors={
+                  balance.netBalance >= 0
+                    ? ['#4ECDC4', '#44A08D']
+                    : ['#FF6B6B', '#FF5252']
+                }
+                style={styles.netBalanceGradient}
+              >
+                <View style={styles.netBalanceContent}>
+                  <Text style={styles.netBalanceLabel}>Net Balance</Text>
+                  <Text style={styles.netBalanceValue}>
+                    {formatCurrency(Math.abs(balance.netBalance))}
                   </Text>
                 </View>
-
-                <View style={styles.balanceItem}>
-                  <View style={styles.balanceItemHeader}>
-                    <ArrowUp size={16} color="#4ECDC4" />
-                    <Text style={styles.balanceLabel}>You're owed</Text>
-                  </View>
-                  <Text style={[styles.balanceValue, styles.positiveBalance]}>
-                    {formatCurrency(balance.totalOwed)}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={styles.netBalanceContainer}>
-                <LinearGradient
-                  colors={
-                    balance.netBalance >= 0
-                      ? ['#4ECDC4', '#44A08D']
-                      : ['#FF6B6B', '#FF5252']
-                  }
-                  style={styles.netBalanceGradient}
-                >
-                  <View style={styles.netBalanceContent}>
-                    <Text style={styles.netBalanceLabel}>Net Balance</Text>
-                    <Text style={styles.netBalanceValue}>
-                      {formatCurrency(Math.abs(balance.netBalance))}
-                    </Text>
-                  </View>
-                </LinearGradient>
-              </View>
-            </LinearGradient>
-          </BlurView>
+              </LinearGradient>
+            </View>
+          </LinearGradient>
         </Animated.View>
 
         {/* Quick Actions */}
@@ -512,10 +511,10 @@ const styles = StyleSheet.create({
     padding: 24,
     borderRadius: 20,
     shadowColor: '#667eea',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.22,
+    shadowRadius: 24,
+    elevation: 16,
   },
   balanceHeader: {
     flexDirection: 'row',

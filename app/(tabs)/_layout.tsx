@@ -1,8 +1,13 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Chrome as Home, Users, Activity, User } from 'lucide-react-native';
+import { useAuth } from '@/hooks/useAuth';
+import { AuthScreen } from '@/components/auth/AuthScreen';
 
 export default function TabLayout() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <AuthScreen />;
   return (
     <Tabs
       screenOptions={{
