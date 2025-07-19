@@ -14,6 +14,9 @@ import { Button } from '@/components/ui/Button';
 import { supabase } from '@/lib/supabase';
 import { Plus, Users, Settings } from 'lucide-react-native';
 import { CreateGroupModal } from '@/components/groups/CreateGroupModal';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { colors, spacing, radii, font } from '@/components/ui/theme';
 
 interface Group {
   id: string;
@@ -39,10 +42,11 @@ export default function GroupsScreen() {
   const fetchGroups = async () => {
     try {
       setLoading(true);
-      
+
       const { data, error } = await supabase
         .from('group_members')
-        .select(`
+        .select(
+          `
           id,
           role,
           group:groups!inner(
@@ -51,7 +55,8 @@ export default function GroupsScreen() {
             description,
             created_at
           )
-        `)
+        `
+        )
         .eq('user_id', user?.id)
         .order('joined_at', { ascending: false });
 
@@ -94,7 +99,7 @@ export default function GroupsScreen() {
       <Card style={styles.groupCard}>
         <View style={styles.groupHeader}>
           <View style={styles.groupIcon}>
-            <Users size={24} color="#FF6B6B" />
+            <Users size={24} color={colors.primary} />
           </View>
           <View style={styles.groupInfo}>
             <Text style={styles.groupName}>{item.name}</Text>
@@ -106,7 +111,7 @@ export default function GroupsScreen() {
             </Text>
           </View>
           <TouchableOpacity style={styles.settingsButton}>
-            <Settings size={20} color="#8E8E93" />
+            <Settings size={20} color={colors.textTertiary} />
           </TouchableOpacity>
         </View>
       </Card>
@@ -119,23 +124,41 @@ export default function GroupsScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text>Loading groups...</Text>
+      <LinearGradient
+        colors={colors.gradientPrimary}
+        style={styles.loadingContainer}
+      >
+        <View style={styles.loadingContent}>
+          <Users size={32} color={colors.white} />
+          <Text style={styles.loadingText}>Loading groups...</Text>
         </View>
-      </SafeAreaView>
+      </LinearGradient>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Your Groups</Text>
-        <TouchableOpacity onPress={handleCreateGroup} style={styles.createButton}>
-          <Plus size={24} color="#FF6B6B" />
-        </TouchableOpacity>
-      </View>
-
+    <View style={styles.container}>
+      <LinearGradient
+        colors={colors.gradientPrimary}
+        style={styles.headerGradient}
+      >
+        <SafeAreaView>
+          <View style={styles.header}>
+            <Text style={styles.title}>Your Groups</Text>
+            <TouchableOpacity
+              onPress={handleCreateGroup}
+              style={styles.createButton}
+            >
+              <LinearGradient
+                colors={colors.gradientDanger}
+                style={styles.createButtonGradient}
+              >
+                <Plus size={24} color={colors.white} />
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
       {groups.length > 0 ? (
         <FlatList
           data={groups}
@@ -145,64 +168,91 @@ export default function GroupsScreen() {
           showsVerticalScrollIndicator={false}
         />
       ) : (
-        <View style={styles.emptyContainer}>
-          <Users size={64} color="#D1D1D6" />
+        <LinearGradient
+          colors={colors.gradientCard}
+          style={styles.emptyContainer}
+        >
+          <Users size={64} color={colors.textTertiary} />
           <Text style={styles.emptyTitle}>No groups yet</Text>
           <Text style={styles.emptyDescription}>
             Create a group to start splitting expenses with friends and family
           </Text>
-          <Button
-            title="Create Your First Group"
-            onPress={handleCreateGroup}
-            style={styles.createFirstButton}
-          />
-        </View>
+          <TouchableOpacity onPress={handleCreateGroup}>
+            <LinearGradient
+              colors={colors.gradientPrimary}
+              style={styles.createFirstButton}
+            >
+              <Text style={styles.createFirstButtonText}>
+                Create Your First Group
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </LinearGradient>
       )}
-      
       <CreateGroupModal
         visible={showCreateGroup}
         onClose={() => setShowCreateGroup(false)}
         onGroupCreated={fetchGroups}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingContent: {
+    alignItems: 'center',
+    padding: spacing.lg,
+  },
+  loadingText: {
+    color: colors.white,
+    fontSize: font.size.lg,
+    fontWeight: '600',
+    marginTop: spacing.md,
+  },
+  headerGradient: {
+    paddingBottom: spacing.lg,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
-    paddingBottom: 16,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1C1C1E',
+    fontSize: font.size.xl,
+    fontWeight: '800',
+    color: colors.white,
+    marginBottom: 4,
   },
   createButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#F2F2F7',
+    overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#D1D1D6',
+  },
+  createButtonGradient: {
+    flex: 1,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
   },
   listContainer: {
-    padding: 20,
-    paddingTop: 0,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xl,
   },
   groupCard: {
     marginBottom: 12,
@@ -215,7 +265,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#FFE5E5',
+    backgroundColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -224,19 +274,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   groupName: {
-    fontSize: 18,
+    fontSize: font.size.lg,
     fontWeight: '600',
-    color: '#1C1C1E',
+    color: colors.white,
     marginBottom: 2,
   },
   groupDescription: {
-    fontSize: 14,
-    color: '#8E8E93',
+    fontSize: font.size.sm,
+    color: colors.textTertiary,
     marginBottom: 4,
   },
   groupMeta: {
-    fontSize: 12,
-    color: '#8E8E93',
+    fontSize: font.size.xs,
+    color: colors.textTertiary,
   },
   settingsButton: {
     width: 32,
@@ -245,26 +295,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    padding: 40,
+    padding: spacing.xl,
+    borderRadius: radii.lg,
+    margin: spacing.lg,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   emptyTitle: {
-    fontSize: 24,
+    textAlign: 'center',
+    color: colors.textSecondary,
+    fontSize: font.size.lg,
     fontWeight: '600',
-    color: '#1C1C1E',
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: spacing.md,
   },
   emptyDescription: {
-    fontSize: 16,
-    color: '#8E8E93',
     textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 32,
+    color: colors.textTertiary,
+    fontSize: font.size.md,
+    fontWeight: '500',
+    marginTop: spacing.xs,
+    marginBottom: spacing.md,
   },
   createFirstButton: {
-    paddingHorizontal: 32,
+    borderRadius: radii.lg,
+    paddingVertical: spacing.sm + 4,
+    paddingHorizontal: spacing.xl,
+    marginTop: spacing.md,
+  },
+  createFirstButtonText: {
+    color: colors.white,
+    fontSize: font.size.md,
+    fontWeight: '700',
+    textAlign: 'center',
   },
 });

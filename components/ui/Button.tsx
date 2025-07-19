@@ -7,6 +7,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
+import { colors, font, radii } from './theme';
 
 interface ButtonProps {
   title: string;
@@ -35,7 +36,13 @@ export function Button({
     <TouchableOpacity
       style={[
         styles.button,
-        styles[variant],
+        variant === 'primary' && { backgroundColor: colors.primary },
+        variant === 'secondary' && {
+          backgroundColor: colors.background,
+          borderColor: colors.border,
+          borderWidth: 1,
+        },
+        variant === 'danger' && { backgroundColor: colors.danger },
         styles[size],
         isDisabled && styles.disabled,
         style,
@@ -45,9 +52,19 @@ export function Button({
       activeOpacity={0.7}
     >
       {loading ? (
-        <ActivityIndicator color="#FFFFFF" />
+        <ActivityIndicator
+          color={variant === 'secondary' ? colors.primary : colors.white}
+        />
       ) : (
-        <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>
+        <Text
+          style={[
+            styles.text,
+            variant === 'primary' && { color: colors.white },
+            variant === 'secondary' && { color: colors.primary },
+            variant === 'danger' && { color: colors.white },
+            textStyle,
+          ]}
+        >
           {title}
         </Text>
       )}
@@ -57,21 +74,10 @@ export function Button({
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 12,
+    borderRadius: radii.lg,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-  },
-  primary: {
-    backgroundColor: '#FF6B6B',
-  },
-  secondary: {
-    backgroundColor: '#F2F2F7',
-    borderWidth: 1,
-    borderColor: '#D1D1D6',
-  },
-  danger: {
-    backgroundColor: '#FF4757',
   },
   small: {
     paddingHorizontal: 16,
@@ -92,16 +98,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   text: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  primaryText: {
-    color: '#FFFFFF',
-  },
-  secondaryText: {
-    color: '#FF6B6B',
-  },
-  dangerText: {
-    color: '#FFFFFF',
+    fontSize: font.size.md,
+    fontWeight: '600', // Use numeric value for React Native
   },
 });

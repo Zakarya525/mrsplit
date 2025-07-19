@@ -27,6 +27,27 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    // Ensure user row exists for all auth flows (sign in, OAuth, session restore)
+    const ensureUserRow = async () => {
+      if (user) {
+        const { data: userRows, error: userFetchError } = await supabase
+          .from('users')
+          .select('id')
+          .eq('id', user.id)
+          .single();
+        if (userFetchError || !userRows) {
+          await supabase.from('users').insert({
+            id: user.id,
+            email: user.email!,
+            name: user.user_metadata?.name || user.email || 'User',
+          });
+        }
+      }
+    };
+    ensureUserRow();
+  }, [user]);
+
   const signUp = async (email: string, password: string, name: string) => {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -51,10 +72,30 @@ export function useAuth() {
   };
 
   const signIn = async (email: string, password: string) => {
-    return await supabase.auth.signInWithPassword({
+    const result = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    if (result.data.user && !result.error) {
+      // Ensure user profile exists
+      const { data: userRows, error: userFetchError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', result.data.user.id)
+        .single();
+      if (userFetchError || !userRows) {
+        // Insert user profile if missing
+        await supabase.from('users').insert({
+          id: result.data.user.id,
+          email: result.data.user.email!,
+          name:
+            result.data.user.user_metadata?.name ||
+            result.data.user.email ||
+            'User',
+        });
+      }
+    }
+    return result;
   };
 
   const signOut = async () => {

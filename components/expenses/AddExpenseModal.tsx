@@ -32,7 +32,11 @@ interface GroupMember {
   user_id: string;
 }
 
-export function AddExpenseModal({ visible, onClose, onExpenseAdded }: AddExpenseModalProps) {
+export function AddExpenseModal({
+  visible,
+  onClose,
+  onExpenseAdded,
+}: AddExpenseModalProps) {
   const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
@@ -60,20 +64,23 @@ export function AddExpenseModal({ visible, onClose, onExpenseAdded }: AddExpense
     try {
       const { data, error } = await supabase
         .from('group_members')
-        .select(`
+        .select(
+          `
           group:groups!inner(
             id,
             name
           )
-        `)
+        `
+        )
         .eq('user_id', user?.id);
 
       if (error) throw error;
 
-      const userGroups = data?.map((item) => ({
-        id: (item.group as any).id,
-        name: (item.group as any).name,
-      })) || [];
+      const userGroups =
+        data?.map((item) => ({
+          id: (item.group as any).id,
+          name: (item.group as any).name,
+        })) || [];
 
       setGroups(userGroups);
     } catch (error) {
@@ -87,27 +94,30 @@ export function AddExpenseModal({ visible, onClose, onExpenseAdded }: AddExpense
     try {
       const { data, error } = await supabase
         .from('group_members')
-        .select(`
+        .select(
+          `
           id,
           user:users!inner(
             id,
             name
           )
-        `)
+        `
+        )
         .eq('group_id', selectedGroup.id);
 
       if (error) throw error;
 
-      const members = data?.map((item) => ({
-        id: item.id,
-        name: (item.user as any).name,
-        user_id: (item.user as any).id,
-      })) || [];
+      const members =
+        data?.map((item) => ({
+          id: item.id,
+          name: (item.user as any).name,
+          user_id: (item.user as any).id,
+        })) || [];
 
       setGroupMembers(members);
-      
+
       // Auto-select current user as payer
-      const currentUserMember = members.find(m => m.user_id === user?.id);
+      const currentUserMember = members.find((m) => m.user_id === user?.id);
       if (currentUserMember) {
         setSelectedPayer(currentUserMember);
       }
@@ -148,7 +158,7 @@ export function AddExpenseModal({ visible, onClose, onExpenseAdded }: AddExpense
 
       // Create equal splits for all group members
       const splitAmount = expenseAmount / groupMembers.length;
-      const splits = groupMembers.map(member => ({
+      const splits = groupMembers.map((member) => ({
         expense_id: expense.id,
         user_id: member.user_id,
         share_amount: splitAmount.toFixed(2),
@@ -166,7 +176,10 @@ export function AddExpenseModal({ visible, onClose, onExpenseAdded }: AddExpense
       onClose();
     } catch (error: any) {
       console.error('Error adding expense:', error);
-      Alert.alert('Error', 'Failed to add expense. Please try again.');
+      Alert.alert(
+        'Error',
+        error?.message || 'Failed to add expense. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
@@ -205,19 +218,21 @@ export function AddExpenseModal({ visible, onClose, onExpenseAdded }: AddExpense
       onPress={() => setSelectedPayer(item)}
       style={styles.payerItem}
     >
-      <View style={[
-        styles.payerCard,
-        selectedPayer?.id === item.id && styles.selectedPayerCard
-      ]}>
-        <Text style={[
-          styles.payerName,
-          selectedPayer?.id === item.id && styles.selectedPayerName
-        ]}>
+      <View
+        style={[
+          styles.payerCard,
+          selectedPayer?.id === item.id && styles.selectedPayerCard,
+        ]}
+      >
+        <Text
+          style={[
+            styles.payerName,
+            selectedPayer?.id === item.id && styles.selectedPayerName,
+          ]}
+        >
           {item.name}
         </Text>
-        {selectedPayer?.id === item.id && (
-          <Check size={20} color="#FFFFFF" />
-        )}
+        {selectedPayer?.id === item.id && <Check size={20} color="#FFFFFF" />}
       </View>
     </TouchableOpacity>
   );
@@ -241,7 +256,9 @@ export function AddExpenseModal({ visible, onClose, onExpenseAdded }: AddExpense
 
         {step === 1 ? (
           <View style={styles.content}>
-            <Text style={styles.subtitle}>Choose a group to add the expense to:</Text>
+            <Text style={styles.subtitle}>
+              Choose a group to add the expense to:
+            </Text>
             <FlatList
               data={groups}
               renderItem={renderGroupItem}
@@ -255,7 +272,7 @@ export function AddExpenseModal({ visible, onClose, onExpenseAdded }: AddExpense
               <Text style={styles.selectedGroupText}>
                 Group: {selectedGroup?.name}
               </Text>
-              
+
               <Input
                 label="Expense Title"
                 value={title}
@@ -263,7 +280,7 @@ export function AddExpenseModal({ visible, onClose, onExpenseAdded }: AddExpense
                 placeholder="What did you spend on?"
                 autoCapitalize="words"
               />
-              
+
               <Input
                 label="Amount"
                 value={amount}
@@ -271,7 +288,7 @@ export function AddExpenseModal({ visible, onClose, onExpenseAdded }: AddExpense
                 placeholder="0.00"
                 keyboardType="numeric"
               />
-              
+
               <Input
                 label="Description (Optional)"
                 value={description}
@@ -291,7 +308,7 @@ export function AddExpenseModal({ visible, onClose, onExpenseAdded }: AddExpense
                 showsHorizontalScrollIndicator={false}
                 style={styles.payerList}
               />
-              
+
               <View style={styles.buttonRow}>
                 <Button
                   title="Back"

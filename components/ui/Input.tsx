@@ -7,6 +7,7 @@ import {
   TextInputProps,
   ViewStyle,
 } from 'react-native';
+import { colors, font, radii, spacing } from './theme';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -45,34 +46,34 @@ export function Input({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1C1C1E',
-    marginBottom: 8,
+    fontSize: font.size.md,
+    fontWeight: '600', // Use numeric value for React Native
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#D1D1D6',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    backgroundColor: '#F2F2F7',
+    borderColor: colors.border,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 4,
+    fontSize: font.size.md,
+    backgroundColor: colors.background,
     minHeight: 44,
   },
   inputFocused: {
-    borderColor: '#FF6B6B',
-    backgroundColor: '#FFFFFF',
+    borderColor: colors.primary,
+    backgroundColor: colors.card,
   },
   inputError: {
-    borderColor: '#FF4757',
+    borderColor: colors.danger,
   },
   errorText: {
-    fontSize: 14,
-    color: '#FF4757',
-    marginTop: 4,
+    fontSize: font.size.sm,
+    color: colors.danger,
+    marginTop: spacing.xs,
   },
 });

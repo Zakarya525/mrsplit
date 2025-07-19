@@ -20,7 +20,11 @@ interface CreateGroupModalProps {
   onGroupCreated: () => void;
 }
 
-export function CreateGroupModal({ visible, onClose, onGroupCreated }: CreateGroupModalProps) {
+export function CreateGroupModal({
+  visible,
+  onClose,
+  onGroupCreated,
+}: CreateGroupModalProps) {
   const { user } = useAuth();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -65,7 +69,10 @@ export function CreateGroupModal({ visible, onClose, onGroupCreated }: CreateGro
       onClose();
     } catch (error: any) {
       console.error('Error creating group:', error);
-      Alert.alert('Error', 'Failed to create group. Please try again.');
+      Alert.alert(
+        'Error',
+        error?.message || 'Failed to create group. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
@@ -103,7 +110,7 @@ export function CreateGroupModal({ visible, onClose, onGroupCreated }: CreateGro
             numberOfLines={3}
             style={styles.descriptionInput}
           />
-          
+
           <Button
             title="Create Group"
             onPress={handleCreateGroup}

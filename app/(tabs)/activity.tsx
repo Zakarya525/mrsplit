@@ -10,7 +10,14 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { Card } from '@/components/ui/Card';
 import { supabase } from '@/lib/supabase';
-import { DollarSign, Users, CircleCheck as CheckCircle, Clock } from 'lucide-react-native';
+import {
+  DollarSign,
+  Users,
+  CircleCheck as CheckCircle,
+  Clock,
+} from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors, spacing, radii, font } from '@/components/ui/theme';
 
 interface ActivityItem {
   id: string;
@@ -37,7 +44,7 @@ export default function ActivityScreen() {
   const fetchActivities = async () => {
     try {
       setLoading(true);
-      
+
       // First get user's groups
       const { data: userGroups, error: groupsError } = await supabase
         .from('group_members')
@@ -46,7 +53,7 @@ export default function ActivityScreen() {
 
       if (groupsError) throw groupsError;
 
-      const groupIds = userGroups?.map(g => g.group_id) || [];
+      const groupIds = userGroups?.map((g) => g.group_id) || [];
 
       if (groupIds.length === 0) {
         setActivities([]);
@@ -56,14 +63,16 @@ export default function ActivityScreen() {
       // Fetch recent expenses from user's groups
       const { data: expenses, error: expensesError } = await supabase
         .from('expenses')
-        .select(`
+        .select(
+          `
           id,
           title,
           amount,
           created_at,
           payer:users!payer_id(name),
           group:groups!group_id(name)
-        `)
+        `
+        )
         .in('group_id', groupIds)
         .order('created_at', { ascending: false })
         .limit(20);
@@ -71,16 +80,19 @@ export default function ActivityScreen() {
       if (expensesError) throw expensesError;
 
       // Format activities
-      const formattedActivities: ActivityItem[] = expenses?.map((expense) => ({
-        id: expense.id,
-        type: 'expense_added',
-        title: 'Expense Added',
-        description: `${(expense.payer as any)?.name} added "${expense.title}"`,
-        amount: parseFloat(expense.amount),
-        group_name: (expense.group as any)?.name || 'Unknown Group',
-        created_at: expense.created_at,
-        user_name: (expense.payer as any)?.name || 'Unknown User',
-      })) || [];
+      const formattedActivities: ActivityItem[] =
+        expenses?.map((expense) => ({
+          id: expense.id,
+          type: 'expense_added',
+          title: 'Expense Added',
+          description: `${(expense.payer as any)?.name} added "${
+            expense.title
+          }"`,
+          amount: parseFloat(expense.amount),
+          group_name: (expense.group as any)?.name || 'Unknown Group',
+          created_at: expense.created_at,
+          user_name: (expense.payer as any)?.name || 'Unknown User',
+        })) || [];
 
       setActivities(formattedActivities);
     } catch (error) {
@@ -93,13 +105,13 @@ export default function ActivityScreen() {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'expense_added':
-        return <DollarSign size={20} color="#4ECDC4" />;
+        return <DollarSign size={20} color={colors.primary} />;
       case 'settlement':
-        return <CheckCircle size={20} color="#4ECDC4" />;
+        return <CheckCircle size={20} color={colors.primary} />;
       case 'group_joined':
-        return <Users size={20} color="#FFA726" />;
+        return <Users size={20} color={colors.warning} />;
       default:
-        return <Clock size={20} color="#8E8E93" />;
+        return <Clock size={20} color={colors.textTertiary} />;
     }
   };
 
@@ -131,9 +143,7 @@ export default function ActivityScreen() {
   const renderActivityItem = ({ item }: { item: ActivityItem }) => (
     <Card style={styles.activityCard}>
       <View style={styles.activityHeader}>
-        <View style={styles.activityIcon}>
-          {getActivityIcon(item.type)}
-        </View>
+        <View style={styles.activityIcon}>{getActivityIcon(item.type)}</View>
         <View style={styles.activityContent}>
           <Text style={styles.activityTitle}>{item.title}</Text>
           <Text style={styles.activityDescription}>{item.description}</Text>
@@ -155,20 +165,30 @@ export default function ActivityScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text>Loading activity...</Text>
+      <LinearGradient
+        colors={colors.gradientPrimary}
+        style={styles.loadingContainer}
+      >
+        <View style={styles.loadingContent}>
+          <Users size={32} color={colors.white} />
+          <Text style={styles.loadingText}>Loading activity...</Text>
         </View>
-      </SafeAreaView>
+      </LinearGradient>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Activity Feed</Text>
-      </View>
-
+    <View style={styles.container}>
+      <LinearGradient
+        colors={colors.gradientPrimary}
+        style={styles.headerGradient}
+      >
+        <SafeAreaView>
+          <View style={styles.header}>
+            <Text style={styles.title}>Activity Feed</Text>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
       {activities.length > 0 ? (
         <FlatList
           data={activities}
@@ -178,40 +198,58 @@ export default function ActivityScreen() {
           showsVerticalScrollIndicator={false}
         />
       ) : (
-        <View style={styles.emptyContainer}>
-          <Clock size={64} color="#D1D1D6" />
+        <LinearGradient
+          colors={colors.gradientCard}
+          style={styles.emptyContainer}
+        >
+          <Users size={64} color={colors.textTertiary} />
           <Text style={styles.emptyTitle}>No activity yet</Text>
           <Text style={styles.emptyDescription}>
             Activity from your groups will appear here
           </Text>
-        </View>
+        </LinearGradient>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingContent: {
+    alignItems: 'center',
+    padding: spacing.lg,
+  },
+  loadingText: {
+    color: colors.white,
+    fontSize: font.size.lg,
+    fontWeight: '600',
+    marginTop: spacing.md,
+  },
+  headerGradient: {
+    paddingBottom: spacing.lg,
+  },
   header: {
-    padding: 20,
-    paddingBottom: 16,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1C1C1E',
+    fontSize: font.size.xl,
+    fontWeight: '800',
+    color: colors.white,
   },
   listContainer: {
-    padding: 20,
-    paddingTop: 0,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xl,
   },
   activityCard: {
     marginBottom: 12,
@@ -223,8 +261,8 @@ const styles = StyleSheet.create({
   activityIcon: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F2F2F7',
+    borderRadius: radii.md,
+    backgroundColor: colors.backgroundLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -233,14 +271,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   activityTitle: {
-    fontSize: 16,
+    fontSize: font.size.md,
     fontWeight: '600',
-    color: '#1C1C1E',
+    color: colors.textPrimary,
     marginBottom: 2,
   },
   activityDescription: {
-    fontSize: 14,
-    color: '#3C3C43',
+    fontSize: font.size.sm,
+    color: colors.textSecondary,
     marginBottom: 6,
   },
   activityMeta: {
@@ -249,37 +287,44 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   groupName: {
-    fontSize: 12,
-    color: '#FF6B6B',
+    fontSize: font.size.xs,
+    color: colors.error,
     fontWeight: '500',
   },
   timeAgo: {
-    fontSize: 12,
-    color: '#8E8E93',
+    fontSize: font.size.xs,
+    color: colors.textTertiary,
   },
   activityAmount: {
-    fontSize: 16,
+    fontSize: font.size.md,
     fontWeight: '600',
-    color: '#4ECDC4',
+    color: colors.primary,
     marginLeft: 12,
   },
   emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    padding: 40,
+    padding: spacing.xl,
+    borderRadius: radii.lg,
+    margin: spacing.lg,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   emptyTitle: {
-    fontSize: 24,
+    textAlign: 'center',
+    color: colors.textSecondary,
+    fontSize: font.size.lg,
     fontWeight: '600',
-    color: '#1C1C1E',
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: spacing.md,
   },
   emptyDescription: {
-    fontSize: 16,
-    color: '#8E8E93',
     textAlign: 'center',
-    lineHeight: 22,
+    color: colors.textTertiary,
+    fontSize: font.size.md,
+    fontWeight: '500',
+    marginTop: spacing.xs,
+    marginBottom: spacing.md,
   },
 });
