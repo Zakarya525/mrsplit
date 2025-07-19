@@ -79,11 +79,11 @@ export default function ActivityScreen() {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'expense_added':
-        return <DollarSign size={20} color="#007AFF" />;
+        return <DollarSign size={20} color="#4ECDC4" />;
       case 'settlement':
-        return <CheckCircle size={20} color="#34C759" />;
+        return <CheckCircle size={20} color="#4ECDC4" />;
       case 'group_joined':
-        return <Users size={20} color="#FF9500" />;
+        return <Users size={20} color="#FFA726" />;
       default:
         return <Clock size={20} color="#8E8E93" />;
     }
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   },
   groupName: {
     fontSize: 12,
-    color: '#007AFF',
+    color: '#FF6B6B',
     fontWeight: '500',
   },
   timeAgo: {
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
   activityAmount: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#007AFF',
+    color: '#4ECDC4',
     marginLeft: 12,
   },
   emptyContainer: {

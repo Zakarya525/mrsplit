@@ -13,6 +13,8 @@ import { AuthScreen } from '@/components/auth/AuthScreen';
 import { Card } from '@/components/ui/Card';
 import { supabase } from '@/lib/supabase';
 import { Plus, DollarSign, TrendingUp, Users } from 'lucide-react-native';
+import { CreateGroupModal } from '@/components/groups/CreateGroupModal';
+import { AddExpenseModal } from '@/components/expenses/AddExpenseModal';
 
 interface Balance {
   totalOwed: number;
@@ -38,6 +40,8 @@ export default function HomeScreen() {
   });
   const [recentExpenses, setRecentExpenses] = useState<RecentExpense[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [showAddExpense, setShowAddExpense] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -163,7 +167,7 @@ export default function HomeScreen() {
         {/* Balance Overview */}
         <Card style={styles.balanceCard}>
           <View style={styles.balanceHeader}>
-            <DollarSign size={24} color="#007AFF" />
+            <DollarSign size={24} color="#4ECDC4" />
             <Text style={styles.balanceTitle}>Your Balance</Text>
           </View>
           
@@ -196,12 +200,18 @@ export default function HomeScreen() {
 
         {/* Quick Actions */}
         <View style={styles.quickActions}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => setShowAddExpense(true)}
+          >
             <Plus size={20} color="#FFFFFF" />
             <Text style={styles.actionButtonText}>Add Expense</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => setShowCreateGroup(true)}
+          >
             <Users size={20} color="#FFFFFF" />
             <Text style={styles.actionButtonText}>Create Group</Text>
           </TouchableOpacity>
@@ -230,6 +240,18 @@ export default function HomeScreen() {
           )}
         </View>
       </ScrollView>
+      
+      <CreateGroupModal
+        visible={showCreateGroup}
+        onClose={() => setShowCreateGroup(false)}
+        onGroupCreated={fetchDashboardData}
+      />
+      
+      <AddExpenseModal
+        visible={showAddExpense}
+        onClose={() => setShowAddExpense(false)}
+        onExpenseAdded={fetchDashboardData}
+      />
     </SafeAreaView>
   );
 }
@@ -291,10 +313,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   positiveBalance: {
-    color: '#34C759',
+    color: '#4ECDC4',
   },
   negativeBalance: {
-    color: '#FF3B30',
+    color: '#FF6B6B',
   },
   netBalanceContainer: {
     borderTopWidth: 1,
@@ -321,7 +343,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF6B6B',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -351,7 +373,7 @@ const styles = StyleSheet.create({
   },
   seeAllText: {
     fontSize: 16,
-    color: '#007AFF',
+    color: '#FF6B6B',
     fontWeight: '500',
   },
   expenseCard: {
@@ -372,7 +394,7 @@ const styles = StyleSheet.create({
   expenseAmount: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#007AFF',
+    color: '#4ECDC4',
   },
   expenseDetails: {
     fontSize: 14,

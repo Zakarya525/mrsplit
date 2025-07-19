@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   primary: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF6B6B',
   },
   secondary: {
     backgroundColor: '#F2F2F7',
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     borderColor: '#D1D1D6',
   },
   danger: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#FF4757',
   },
   small: {
     paddingHorizontal: 16,
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   secondaryText: {
-    color: '#007AFF',
+    color: '#FF6B6B',
   },
   dangerText: {
     color: '#FFFFFF',

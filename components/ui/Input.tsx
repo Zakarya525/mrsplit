@@ -64,15 +64,15 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   inputFocused: {
-    borderColor: '#007AFF',
+    borderColor: '#FF6B6B',
     backgroundColor: '#FFFFFF',
   },
   inputError: {
-    borderColor: '#FF3B30',
+    borderColor: '#FF4757',
   },
   errorText: {
     fontSize: 14,
-    color: '#FF3B30',
+    color: '#FF4757',
     marginTop: 4,
   },
 });

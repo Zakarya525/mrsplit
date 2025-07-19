@@ -33,37 +33,37 @@ export default function ProfileScreen() {
 
   const menuItems = [
     {
-      icon: <Settings size={20} color="#007AFF" />,
+      icon: <Settings size={20} color="#FF6B6B" />,
       title: 'Account Settings',
       subtitle: 'Update your profile and preferences',
       onPress: () => Alert.alert('Settings', 'Settings feature coming soon!'),
     },
     {
-      icon: <Bell size={20} color="#007AFF" />,
+      icon: <Bell size={20} color="#4ECDC4" />,
       title: 'Notifications',
       subtitle: 'Manage your notification preferences',
       onPress: () => Alert.alert('Notifications', 'Notification settings coming soon!'),
     },
     {
-      icon: <Moon size={20} color="#007AFF" />,
+      icon: <Moon size={20} color="#A78BFA" />,
       title: 'Dark Mode',
       subtitle: 'Toggle between light and dark themes',
       onPress: () => Alert.alert('Dark Mode', 'Theme switching coming soon!'),
     },
     {
-      icon: <Globe size={20} color="#007AFF" />,
+      icon: <Globe size={20} color="#FFA726" />,
       title: 'Language',
       subtitle: 'Choose your preferred language',
       onPress: () => Alert.alert('Language', 'Language selection coming soon!'),
     },
     {
-      icon: <Shield size={20} color="#007AFF" />,
+      icon: <Shield size={20} color="#4ECDC4" />,
       title: 'Privacy & Security',
       subtitle: 'Manage your privacy settings',
       onPress: () => Alert.alert('Privacy', 'Privacy settings coming soon!'),
     },
     {
-      icon: <HelpCircle size={20} color="#007AFF" />,
+      icon: <HelpCircle size={20} color="#FF6B6B" />,
       title: 'Help & Support',
       subtitle: 'Get help and contact support',
       onPress: () => Alert.alert('Help', 'Help center coming soon!'),
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: '#FFE5E5',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,

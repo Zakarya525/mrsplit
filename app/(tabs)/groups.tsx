@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { supabase } from '@/lib/supabase';
 import { Plus, Users, Settings } from 'lucide-react-native';
+import { CreateGroupModal } from '@/components/groups/CreateGroupModal';
 
 interface Group {
   id: string;
@@ -27,6 +28,7 @@ export default function GroupsScreen() {
   const { user } = useAuth();
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -84,7 +86,7 @@ export default function GroupsScreen() {
   };
 
   const handleCreateGroup = () => {
-    Alert.alert('Create Group', 'Group creation feature coming soon!');
+    setShowCreateGroup(true);
   };
 
   const renderGroupItem = ({ item }: { item: Group }) => (
@@ -92,7 +94,7 @@ export default function GroupsScreen() {
       <Card style={styles.groupCard}>
         <View style={styles.groupHeader}>
           <View style={styles.groupIcon}>
-            <Users size={24} color="#007AFF" />
+            <Users size={24} color="#FF6B6B" />
           </View>
           <View style={styles.groupInfo}>
             <Text style={styles.groupName}>{item.name}</Text>
@@ -130,7 +132,7 @@ export default function GroupsScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Your Groups</Text>
         <TouchableOpacity onPress={handleCreateGroup} style={styles.createButton}>
-          <Plus size={24} color="#007AFF" />
+          <Plus size={24} color="#FF6B6B" />
         </TouchableOpacity>
       </View>
 
@@ -156,6 +158,12 @@ export default function GroupsScreen() {
           />
         </View>
       )}
+      
+      <CreateGroupModal
+        visible={showCreateGroup}
+        onClose={() => setShowCreateGroup(false)}
+        onGroupCreated={fetchGroups}
+      />
     </SafeAreaView>
   );
 }
@@ -207,7 +215,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: '#FFE5E5',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
