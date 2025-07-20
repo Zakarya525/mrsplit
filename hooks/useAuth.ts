@@ -31,17 +31,27 @@ export function useAuth() {
     // Ensure user row exists for all auth flows (sign in, OAuth, session restore)
     const ensureUserRow = async () => {
       if (user) {
-        const { data: userRows, error: userFetchError } = await supabase
-          .from('users')
-          .select('id')
-          .eq('id', user.id)
-          .single();
-        if (userFetchError || !userRows) {
-          await supabase.from('users').insert({
-            id: user.id,
-            email: user.email!,
-            name: user.user_metadata?.name || user.email || 'User',
-          });
+        try {
+          const { data: userRows, error: userFetchError } = await supabase
+            .from('users')
+            .select('id')
+            .eq('id', user.id)
+            .single();
+          
+          if (userFetchError && userFetchError.code === 'PGRST116') {
+            // User doesn't exist, create them
+            const { error: insertError } = await supabase.from('users').insert({
+              id: user.id,
+              email: user.email!,
+              name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+            });
+            
+            if (insertError) {
+              console.error('Error creating user profile:', insertError);
+            }
+          }
+        } catch (error) {
+          console.error('Error ensuring user row:', error);
         }
       }
     };
@@ -49,61 +59,96 @@ export function useAuth() {
   }, [user]);
 
   const signUp = async (email: string, password: string, name: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name,
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+          },
         },
-      },
-    });
-
-    if (data.user && !error) {
-      // Create user profile
-      await supabase.from('users').insert({
-        id: data.user.id,
-        email: data.user.email!,
-        name,
       });
-    }
 
-    return { data, error };
+      if (data.user && !error) {
+        // Create user profile
+        const { error: profileError } = await supabase.from('users').insert({
+          id: data.user.id,
+          email: data.user.email!,
+          name,
+        });
+        
+        if (profileError) {
+          console.error('Error creating user profile:', profileError);
+        }
+      }
+
+      return { data, error };
+    } catch (error) {
+      console.error('Sign up error:', error);
+      return { data: null, error };
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    const result = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (result.data.user && !result.error) {
-      // Ensure user profile exists
-      const { data: userRows, error: userFetchError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('id', result.data.user.id)
-        .single();
-      if (userFetchError || !userRows) {
-        // Insert user profile if missing
-        await supabase.from('users').insert({
-          id: result.data.user.id,
-          email: result.data.user.email!,
-          name:
-            result.data.user.user_metadata?.name ||
-            result.data.user.email ||
-            'User',
-        });
+    try {
+      const result = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (result.data.user && !result.error) {
+        // Ensure user profile exists
+        try {
+          const { data: userRows, error: userFetchError } = await supabase
+            .from('users')
+            .select('id')
+            .eq('id', result.data.user.id)
+            .single();
+            
+          if (userFetchError && userFetchError.code === 'PGRST116') {
+            // Insert user profile if missing
+            const { error: insertError } = await supabase.from('users').insert({
+              id: result.data.user.id,
+              email: result.data.user.email!,
+              name:
+                result.data.user.user_metadata?.name ||
+                result.data.user.email?.split('@')[0] ||
+                'User',
+            });
+            
+            if (insertError) {
+              console.error('Error creating user profile:', insertError);
+            }
+          }
+        } catch (profileError) {
+          console.error('Error checking user profile:', profileError);
+        }
       }
+      
+      return result;
+    } catch (error) {
+      console.error('Sign in error:', error);
+      return { data: { user: null, session: null }, error };
     }
-    return result;
   };
 
   const signOut = async () => {
-    return await supabase.auth.signOut();
+    try {
+      return await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+      return { error };
+    }
   };
 
   const resetPassword = async (email: string) => {
-    return await supabase.auth.resetPasswordForEmail(email);
+    try {
+      return await supabase.auth.resetPasswordForEmail(email);
+    } catch (error) {
+      console.error('Reset password error:', error);
+      return { error };
+    }
   };
 
   return {

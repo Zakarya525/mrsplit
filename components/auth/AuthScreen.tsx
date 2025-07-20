@@ -144,6 +144,16 @@ export function AuthScreen() {
       return;
     }
 
+    if (!email.includes('@')) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters');
+      return;
+    }
+
     setLoading(true);
     try {
       if (isSignUp) {
@@ -155,7 +165,8 @@ export function AuthScreen() {
         if (error) throw error;
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message);
+      console.error('Auth error:', error);
+      Alert.alert('Error', error?.message || 'Authentication failed. Please try again.');
     } finally {
       setLoading(false);
     }

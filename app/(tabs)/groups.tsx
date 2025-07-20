@@ -45,8 +45,7 @@ export default function GroupsScreen() {
 
       const { data, error } = await supabase
         .from('group_members')
-        .select(
-          `
+        .select(`
           id,
           role,
           group:groups!inner(
@@ -55,12 +54,15 @@ export default function GroupsScreen() {
             description,
             created_at
           )
-        `
-        )
+        `)
         .eq('user_id', user?.id)
         .order('joined_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching groups:', error);
+        Alert.alert('Error', 'Failed to load groups');
+        return;
+      }
 
       // Get member counts for each group
       const groupsWithCounts = await Promise.all(

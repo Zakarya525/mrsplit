@@ -96,22 +96,46 @@ export default function HomeScreen() {
     try {
       setLoadingData(true);
 
+      // First get user's groups
+      const { data: userGroups, error: groupsError } = await supabase
+        .from('group_members')
+        .select('group_id')
+        .eq('user_id', user?.id);
+
+      if (groupsError) {
+        console.error('Error fetching user groups:', groupsError);
+        return;
+      }
+
+      const groupIds = userGroups?.map((g) => g.group_id) || [];
+
+      if (groupIds.length === 0) {
+        setBalance({
+          totalOwed: 0,
+          totalOwing: 0,
+          netBalance: 0,
+        });
+        setRecentExpenses([]);
+        return;
+      }
+
       // Fetch user's balance calculation
       const { data: splits, error: splitsError } = await supabase
         .from('splits')
-        .select(
-          `
+        .select(`
           share_amount,
           expense:expenses!inner(
             amount,
             payer_id,
             group_id
           )
-        `
-        )
+        `)
         .eq('user_id', user?.id);
 
-      if (splitsError) throw splitsError;
+      if (splitsError) {
+        console.error('Error fetching splits:', splitsError);
+        return;
+      }
 
       let totalOwed = 0;
       let totalOwing = 0;
@@ -138,20 +162,22 @@ export default function HomeScreen() {
       // Fetch recent expenses
       const { data: expenses, error: expensesError } = await supabase
         .from('expenses')
-        .select(
-          `
+        .select(`
           id,
           title,
           amount,
           created_at,
           payer:users!payer_id(name),
           group:groups!group_id(name)
-        `
-        )
+        `)
+        .in('group_id', groupIds)
         .order('created_at', { ascending: false })
         .limit(5);
 
-      if (expensesError) throw expensesError;
+      if (expensesError) {
+        console.error('Error fetching expenses:', expensesError);
+        return;
+      }
 
       const formattedExpenses =
         expenses?.map((expense) => ({
